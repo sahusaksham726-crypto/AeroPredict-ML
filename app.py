@@ -25,6 +25,7 @@ model = None
 train_df = None
 test_df = None
 load_error = None
+cached_stats = None
 
 try:
     if not os.path.exists(MODEL_PATH):
@@ -46,16 +47,12 @@ def prepare_one_row(raw):
     """Recreate the notebook's day mapping and get_dummies(drop_first=True) encoding."""
     row = pd.DataFrame([raw])
     row["flight_day"] = row["flight_day"].map(DAY_MAPPING)
-    # Build all dummy columns first. Calling get_dummies(drop_first=True) on a
-    # single row would incorrectly drop the only category present in that row.
     encoded = pd.get_dummies(
         row,
         columns=CATEGORICAL_FEATURES,
         drop_first=False,
         dtype=int
     )
-    # The training notebook used get_dummies(drop_first=True) on the full
-    # training set, which drops the alphabetically first category per column.
     if train_df is None:
         raise RuntimeError("Training CSV is required to reproduce categorical encoding.")
     for col in CATEGORICAL_FEATURES:
@@ -63,7 +60,6 @@ def prepare_one_row(raw):
         baseline_dummy = f"{col}_{baseline}"
         if baseline_dummy in encoded.columns:
             encoded = encoded.drop(columns=[baseline_dummy])
-    # Match the exact feature names and order used when training the saved estimator.
     expected = model_columns()
     encoded = encoded.reindex(columns=expected, fill_value=0)
     return encoded
@@ -74,6 +70,10 @@ def category_options(column):
     return sorted(train_df[column].dropna().astype(str).unique().tolist())
 
 def get_dashboard_stats():
+    global cached_stats
+    if cached_stats is not None:
+        return cached_stats
+
     stats = {"total_train": 0, "total_test": 0, "completion_rate": None, "accuracy": None,
              "precision": None, "recall": None, "f1": None, "class0": None, "class1": None}
     if train_df is not None:
@@ -88,7 +88,7 @@ def get_dashboard_stats():
         if model is not None and "booking_complete" in test_df:
             X = test_df.drop(columns=["booking_complete"]).copy()
             X["flight_day"] = X["flight_day"].map(DAY_MAPPING)
-            X_enc = pd.get_dummies(X, columns=CATEGORICAL_FEATURES, drop_first=True, dtype=int)
+            X_enc = pd.get_dummies(X, columns=CATEGORICAL_FEATURES, drop_first=True, dtype="int8")
             X_enc = X_enc.reindex(columns=model_columns(), fill_value=0)
             y_true = test_df["booking_complete"]
             y_pred = model.predict(X_enc)
@@ -96,6 +96,7 @@ def get_dashboard_stats():
             stats["precision"] = round(precision_score(y_true, y_pred, zero_division=0) * 100, 2)
             stats["recall"] = round(recall_score(y_true, y_pred, zero_division=0) * 100, 2)
             stats["f1"] = round(f1_score(y_true, y_pred, zero_division=0) * 100, 2)
+    cached_stats = stats
     return stats
 
 @app.route("/")

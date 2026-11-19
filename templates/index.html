@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Home | BA Customer Intelligence{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="eyebrow">Machine Learning · Customer Analytics</div>
+  <h1>Understand booking behaviour.<br><span class="gradient">Predict with confidence.</span></h1>
+  <p class="lead">A college project demonstrating how a Random Forest classifier can estimate whether a customer booking will be completed, based on the features used in the training dataset.</p>
+  <div class="actions"><a class="btn" href="{{ url_for('predict') }}">Run a prediction →</a><a class="btn secondary" href="{{ url_for('dashboard') }}">Explore dashboard</a></div>
+</section>
+<div class="grid">
+  <div class="card"><div class="metric-label">Training records</div><div class="metric">{{ "{:,}".format(stats.total_train) }}</div><div class="metric-note">Used to train the model</div></div>
+  <div class="card"><div class="metric-label">Test records</div><div class="metric">{{ "{:,}".format(stats.total_test) }}</div><div class="metric-note">Held-out evaluation data</div></div>
+  <div class="card"><div class="metric-label">Test accuracy</div><div class="metric">{{ stats.accuracy|string + "%" if stats.accuracy is not none else "—" }}</div><div class="metric-note">Accuracy alone is not enough</div></div>
+  <div class="card"><div class="metric-label">Training completion rate</div><div class="metric">{{ stats.completion_rate|string + "%" if stats.completion_rate is not none else "—" }}</div><div class="metric-note">Positive target class frequency</div></div>
+</div>
+<div class="two">
+  <div class="card"><div class="kicker">Project objective</div><h2>From booking data to insight</h2><p class="small">The app recreates the notebook's day mapping and one-hot encoding, then aligns all 906 features to the exact order expected by the saved model.</p></div>
+  <div class="card"><div class="kicker">Workflow</div><h2>How it works</h2><ul class="feature-list"><li>Enter customer and flight details</li><li>Encode inputs to match model training</li><li>Run the saved Random Forest model</li><li>Review prediction and evaluation metrics</li></ul></div>
+</div>
+{% endblock %}

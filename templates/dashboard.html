@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | BA Customer Intelligence{% endblock %}
+{% block content %}
+<div class="hero" style="padding-top:10px"><div class="eyebrow">Model analytics</div><h1>Performance <span class="gradient">dashboard</span></h1><p class="lead">Metrics below are calculated against the supplied test CSV when available. Accuracy should be interpreted alongside precision, recall, and F1-score, especially with an imbalanced target.</p></div>
+<div class="grid">
+  <div class="card"><div class="metric-label">Accuracy</div><div class="metric">{{ stats.accuracy|string + "%" if stats.accuracy is not none else "—" }}</div></div>
+  <div class="card"><div class="metric-label">Precision · completed</div><div class="metric">{{ stats.precision|string + "%" if stats.precision is not none else "—" }}</div></div>
+  <div class="card"><div class="metric-label">Recall · completed</div><div class="metric">{{ stats.recall|string + "%" if stats.recall is not none else "—" }}</div></div>
+  <div class="card"><div class="metric-label">F1-score · completed</div><div class="metric">{{ stats.f1|string + "%" if stats.f1 is not none else "—" }}</div></div>
+</div>
+<div class="two">
+  <div class="card"><h2>Target distribution</h2><p class="small">Training records grouped by the target label.</p>{% if chart %}<canvas id="targetChart" height="240"></canvas>{% else %}<p class="small">Training CSV not found.</p>{% endif %}</div>
+  <div class="card"><h2>How to read these metrics</h2><ul class="feature-list"><li><strong>Accuracy:</strong> overall share of correct predictions.</li><li><strong>Precision:</strong> among predicted completed bookings, how many were completed.</li><li><strong>Recall:</strong> among completed bookings, how many the model found.</li><li><strong>F1-score:</strong> balance between precision and recall.</li></ul><p class="help">For this dataset, the completed-booking class is the minority class. A high accuracy score can hide missed completed bookings.</p></div>
+</div>
+{% if chart %}<script>
+new Chart(document.getElementById('targetChart'),{type:'doughnut',data:{labels:{{ chart['labels']|tojson }},datasets:[{data:{{ chart['values']|tojson }},backgroundColor:['#7c5cff','#42d7d9'],borderColor:'#111936',borderWidth:4}]},options:{plugins:{legend:{labels:{color:'#eaf0ff'}}}}});
+</script>{% endif %}
+{% endblock %}

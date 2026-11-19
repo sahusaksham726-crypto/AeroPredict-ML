@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Predict | BA Customer Intelligence{% endblock %}
+{% block content %}
+<div class="hero" style="padding-top:10px"><div class="eyebrow">Prediction workspace</div><h1>Customer booking <span class="gradient">prediction</span></h1><p class="lead">Enter the booking details below. The model predicts the target class <code>booking_complete</code>; this is a model estimate, not a guarantee of customer behaviour.</p></div>
+<div class="card">
+<form method="post">
+  <div class="form-grid">
+    <div class="field"><label for="num_passengers">Number of passengers</label><input id="num_passengers" name="num_passengers" type="number" min="1" max="9" value="{{ form_data.get('num_passengers','1') }}" required></div>
+    <div class="field"><label for="sales_channel">Sales channel</label><select id="sales_channel" name="sales_channel">{% for x in options.sales_channel %}<option value="{{ x }}" {% if form_data.get('sales_channel')==x %}selected{% endif %}>{{ x }}</option>{% endfor %}</select></div>
+    <div class="field"><label for="trip_type">Trip type</label><select id="trip_type" name="trip_type">{% for x in options.trip_type %}<option value="{{ x }}" {% if form_data.get('trip_type')==x %}selected{% endif %}>{{ x }}</option>{% endfor %}</select></div>
+    <div class="field"><label for="purchase_lead">Purchase lead (days before flight)</label><input id="purchase_lead" name="purchase_lead" type="number" min="0" value="{{ form_data.get('purchase_lead','30') }}" required></div>
+    <div class="field"><label for="length_of_stay">Length of stay (days)</label><input id="length_of_stay" name="length_of_stay" type="number" min="0" value="{{ form_data.get('length_of_stay','5') }}" required></div>
+    <div class="field"><label for="flight_hour">Flight hour (0–23)</label><input id="flight_hour" name="flight_hour" type="number" min="0" max="23" value="{{ form_data.get('flight_hour','10') }}" required></div>
+    <div class="field"><label for="flight_day">Flight day</label><select id="flight_day" name="flight_day">{% for x in ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] %}<option value="{{ x }}" {% if form_data.get('flight_day','Mon')==x %}selected{% endif %}>{{ x }}</option>{% endfor %}</select></div>
+    <div class="field"><label for="route">Route</label><select id="route" name="route" required>{% for x in options.route %}<option value="{{ x }}" {% if form_data.get('route')==x %}selected{% endif %}>{{ x }}</option>{% endfor %}</select><span class="help">Options are taken from your training CSV.</span></div>
+    <div class="field"><label for="booking_origin">Booking origin</label><select id="booking_origin" name="booking_origin" required>{% for x in options.booking_origin %}<option value="{{ x }}" {% if form_data.get('booking_origin')==x %}selected{% endif %}>{{ x }}</option>{% endfor %}</select></div>
+    <div class="field"><label for="flight_duration">Flight duration (hours)</label><input id="flight_duration" name="flight_duration" type="number" min="0.1" step="0.01" value="{{ form_data.get('flight_duration','7.5') }}" required></div>
+    <div class="field"><label for="wants_extra_baggage">Extra baggage requested?</label><select id="wants_extra_baggage" name="wants_extra_baggage"><option value="0">No</option><option value="1" {% if form_data.get('wants_extra_baggage')=='1' %}selected{% endif %}>Yes</option></select></div>
+    <div class="field"><label for="wants_preferred_seat">Preferred seat requested?</label><select id="wants_preferred_seat" name="wants_preferred_seat"><option value="0">No</option><option value="1" {% if form_data.get('wants_preferred_seat')=='1' %}selected{% endif %}>Yes</option></select></div>
+    <div class="field"><label for="wants_in_flight_meals">In-flight meal requested?</label><select id="wants_in_flight_meals" name="wants_in_flight_meals"><option value="0">No</option><option value="1" {% if form_data.get('wants_in_flight_meals')=='1' %}selected{% endif %}>Yes</option></select></div>
+  </div>
+  <div class="form-actions"><button class="btn" type="submit">Predict booking outcome →</button></div>
+</form>
+</div>
+{% if result %}
+<div class="result {% if not result.positive %}negative{% endif %}">
+  <span class="pill">Model prediction</span><h2>{{ result.label }}</h2>
+  <p class="small">Predicted class: <strong>{{ result.prediction }}</strong>{% if result.probability is not none %} · Model probability for this predicted class: <strong>{{ result.probability }}%</strong>{% endif %}</p>
+  {% if result.probability is not none %}<div class="bar"><span style="width:{{ result.probability }}%"></span></div>{% endif %}
+  <p class="help">This probability is the classifier's estimate for the selected class, not a guarantee. The model's low recall for completed bookings should be considered when interpreting positive-class results.</p>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}About | BA Customer Intelligence{% endblock %}
+{% block content %}
+<div class="hero" style="padding-top:10px">
+  <div class="eyebrow">Project documentation</div>
+  <h1>About the <span class="gradient">project</span></h1>
+  <p class="lead">A final-year academic demonstration of supervised learning for customer booking completion.</p>
+</div>
+
+<div class="two">
+  <div class="card">
+    <h2>Problem statement</h2>
+    <p class="small">Use historical booking attributes to estimate whether a booking will be completed. The target column is <code>booking_complete</code>, with 0 representing not completed and 1 representing completed.</p>
+  </div>
+  <div class="card">
+    <h2>Algorithm</h2>
+    <p class="small">Random Forest Classifier with 100 trees. The model was trained using numerical features plus one-hot-encoded categorical features.</p>
+  </div>
+  <div class="card">
+    <h2>Preprocessing</h2>
+    <p class="small">The app maps weekdays to numeric values and uses one-hot encoding with the same <code>drop_first=True</code> approach as the notebook. Encoded columns are aligned to the saved model's expected feature names.</p>
+  </div>
+  <div class="card">
+    <h2>Limitations and responsible use</h2>
+    <p class="small">This is an educational model trained on a specific dataset. Its predictions may not generalize to live BA operations. Do not use it for actual operational, financial, or customer decisions without validation, governance, and appropriate authorization.</p>
+  </div>
+</div>
+
+<!-- EDA & Model Insights Section -->
+<div style="margin-top: 48px;">
+  <div class="eyebrow">Data insights</div>
+  <h2 style="margin-bottom: 20px;">Exploratory Data Analysis &amp; Feature Importance</h2>
+
+  <div class="two">
+    <div class="card">
+      <h3>Booking Status Distribution</h3>
+      <p class="small">Comparison of completed vs. non-completed customer booking sessions.</p>
+      <img src="{{ url_for('static', filename='images/booking_status.png') }}" alt="Booking Status" style="width: 100%; border-radius: 10px; margin-top: 12px;">
+    </div>
+
+    <div class="card">
+      <h3>Top Booking Origins</h3>
+      <p class="small">Leading countries/regions generating the highest booking traffic.</p>
+      <img src="{{ url_for('static', filename='images/top_booking_origins.png') }}" alt="Top Booking Origins" style="width: 100%; border-radius: 10px; margin-top: 12px;">
+    </div>
+
+    <div class="card">
+      <h3>Bookings by Day (Bar Chart)</h3>
+      <p class="small">Daily volume of flight booking sessions across the week.</p>
+      <img src="{{ url_for('static', filename='images/bookings_by_day_vertical_bar.png') }}" alt="Bookings by Day Bar Chart" style="width: 100%; border-radius: 10px; margin-top: 12px;">
+    </div>
+
+    <div class="card">
+      <h3>Bookings by Day (Share)</h3>
+      <p class="small">Percentage share of booking activity by day of the week.</p>
+      <img src="{{ url_for('static', filename='images/bookings_by_day_piechart.png') }}" alt="Bookings by Day Pie Chart" style="width: 100%; border-radius: 10px; margin-top: 12px;">
+    </div>
+  </div>
+
+  <div class="card" style="margin-top: 20px;">
+    <h3>Random Forest Feature Importance</h3>
+    <p class="small">Top predictive drivers influencing customer booking completion in the trained model.</p>
+    <img src="{{ url_for('static', filename='images/feature_importance_BA.png') }}" alt="Feature Importance" style="width: 100%; border-radius: 10px; margin-top: 12px;">
+  </div>
+</div>
+{% endblock %}
